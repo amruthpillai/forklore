@@ -1,0 +1,197 @@
+@media (max-width: 760px) {
+  .page-shell {
+    border: 0;
+  }
+
+  /* ── Hamburger nav ── */
+  .site-header {
+    flex-wrap: wrap;
+    padding: 1.25rem;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .header-right {
+    gap: 0.5rem;
+  }
+
+  .site-nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1000;
+    width: min(280px, 75vw);
+    height: 100vh;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+    padding: 2rem;
+    background: var(--bg);
+    border-left: 2px dashed var(--line);
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    overflow-y: auto;
+  }
+
+  .site-nav.open {
+    display: flex;
+    transform: translateX(0);
+  }
+
+  .site-nav a {
+    display: block;
+    width: 100%;
+    padding: 1rem 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 0.95rem;
+  }
+
+  .nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .nav-overlay.open {
+    display: block;
+  }
+
+  /* ── Maintainer detail: profile first, then projects, then questions ── */
+  .profile-layout {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .profile-main {
+    border-right: 0;
+  }
+
+  .profile-aside {
+    border-bottom: 2px dashed var(--line);
+  }
+
+  /* ── Project cards ── */
+  .project-card {
+    display: block;
+  }
+
+  .project-logo {
+    margin-bottom: 1rem;
+  }
+
+  .project-strip-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-summary,
+  .project-summary:nth-child(even),
+  .project-summary:nth-child(n + 3) {
+    border-left: 0;
+    border-top: 2px dashed var(--line);
+  }
+
+  .project-summary:first-child {
+    border-top: 0;
+  }
+
+  .project-strip-grid.project-strip-odd::after {
+    display: none;
+  }
+
+  /* ── Directory controls wrapping ── */
+  .directory-controls {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    overflow-x: visible;
+    padding-right: 0;
+  }
+
+  .search-sort {
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .search-box {
+    width: 100%;
+    max-width: none;
+  }
+
+  .search-sort select {
+    width: auto;
+  }
+
+  .control-actions {
+    flex-wrap: wrap;
+    margin-top: 0;
+    width: 100%;
+  }
+
+  .control-actions .button {
+    flex: 0 0 auto;
+    justify-content: center;
+    width: auto;
+    white-space: nowrap;
+  }
+
+  /* ── Maintainer cards ── */
+  .maintainer-list {
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
+  }
+
+  .maintainer-card {
+    overflow: hidden;
+  }
+
+  /* ── Emoji grid ── */
+  .emoji-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  /* ── Footer ── */
+  .footer-inner {
+    padding-inline: 1rem;
+  }
+
+  /* ── Planet ── */
+  .planet-post,
+  .planet-filter-list {
+    display: grid;
+  }
+}
+
+/* ── Extra-small screens ── */
+@media (max-width: 380px) {
+  .site-header {
+    padding: 1rem;
+  }
+
+  .brand-mark {
+    width: 6rem;
+  }
+
+  .maintainer-list {
+    padding: 0.75rem;
+    gap: 1rem;
+  }
+
+  .maintainer-card-header,
+  .profile-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .control-actions .button {
+    font-size: 0.75rem;
+    padding: 0.4rem;
+  }
+}
