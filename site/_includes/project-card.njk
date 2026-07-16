@@ -2,7 +2,9 @@
   {% if project.logo %}
     <img src="{{ project.logo }}" alt="Logo of {{ project.name }}" class="project-logo" loading="lazy">
   {% else %}
-    <div class="project-logo project-logo-fallback">{{ project.name | first }}</div>
+    <div class="project-logo project-logo-fallback" role="img" aria-label="Logo of {{ project.name }}">
+      <span>{{ project | shortLabel }}</span>
+    </div>
   {% endif %}
   <div class="project-copy">
     <h3>{{ project.name }}</h3>

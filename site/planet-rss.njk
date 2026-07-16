@@ -3,19 +3,31 @@ permalink: /planet/rss.xml
 eleventyExcludeFromCollections: true
 ---
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Planet Forklore - Aggregated Blog Posts</title>
-    <link>https://forklore.in/planet/</link>
+    <link>{{ site.url }}/planet/</link>
+    <atom:link href="{{ site.url }}/planet/rss.xml" rel="self" type="application/rss+xml" />
     <description>Aggregated blog posts from India's open source maintainers.</description>
-    {% for post in planet.posts | take(50) %}
-      <item>
-        <title>{{ post.title | xmlEscape }}</title>
-        <link>{{ post.link | xmlEscape }}</link>
-        <guid>{{ (post.guid or post.link or post.slug) | xmlEscape }}</guid>
-        <description>{{ post.contentSnippet | xmlEscape }}</description>
-        <pubDate>{{ post.pubDate | xmlEscape }}</pubDate>
-      </item>
-    {% endfor %}
+    <language>en</language>
+    <copyright>All rights reserved, Forklore</copyright>
+    {%- for post in planet.posts | take(50) %}
+    <item>
+      <title>{{ post.title | xmlEscape | safe }}</title>
+      <link>{{ post.link | xmlEscape | safe }}</link>
+      <guid isPermaLink="false">{{ (post.link or post.guid or post.slug) | xmlEscape | safe }}</guid>
+      <pubDate>{{ post.pubDate | rfc822 | safe }}</pubDate>
+      <author>{{ (post.author or post.maintainerName) | xmlEscape | safe }}</author>
+      {%- for tag in post.tags %}
+      <category>{{ tag | xmlEscape | safe }}</category>
+      {%- endfor %}
+      {%- if post.contentSnippet %}
+      <description>{{ post.contentSnippet | cdata | safe }}</description>
+      {%- endif %}
+      {%- if post.content %}
+      <content:encoded>{{ post.content | cdata | safe }}</content:encoded>
+      {%- endif %}
+    </item>
+    {%- endfor %}
   </channel>
 </rss>

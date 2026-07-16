@@ -30,6 +30,9 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Install OG image tooling
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
+
       - name: Install site dependencies
         run: yarn --cwd site install --frozen-lockfile
 

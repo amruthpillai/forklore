@@ -67,6 +67,22 @@ export default function (eleventyConfig) {
       ),
   );
 
+  eleventyConfig.addFilter("shortLabel", (project) => {
+    if (!project) return "";
+    if (project.project_link) {
+      try {
+        const parts = new URL(project.project_link).pathname
+          .replace(/\/$/, "")
+          .split("/")
+          .filter(Boolean);
+        if (parts.length) return parts[parts.length - 1];
+      } catch {
+        // fall through to project name
+      }
+    }
+    return project.name || "";
+  });
+
   eleventyConfig.addFilter("socialLabel", (label) => {
     if (!label) return "Web";
     return SOCIAL_LABELS[String(label).trim().toLowerCase()] || label;
@@ -110,6 +126,44 @@ export default function (eleventyConfig) {
     return [...counts.entries()]
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count);
+  });
+
+  eleventyConfig.addFilter("qaList", (html) => {
+    const src = String(html || "");
+    const sections = src.split(/<h2[^>]*>/i).slice(1);
+    if (!sections.length) return src;
+    // Mirror the old Nuxt feed: question in <strong>, answer below, and a
+    // trailing <br> after each item so answer and next question keep a gap.
+    // Skip questions that have no answer.
+    const items = sections
+      .map((section) => {
+        const end = section.indexOf("</h2>");
+        const question = (end >= 0 ? section.slice(0, end) : section).trim();
+        const answer = (end >= 0 ? section.slice(end + 5) : "").trim();
+        if (!answer.replace(/<[^>]*>/g, "").trim()) return "";
+        return `<li><strong>${question}</strong><br>${answer}</li><br>`;
+      })
+      .filter(Boolean);
+    if (!items.length) return "";
+    return `<ul>${items.join("")}</ul>`;
+  });
+
+  // Remove question headings (h2) that have no answer content following them.
+  eleventyConfig.addFilter("dropEmptyQA", (html) =>
+    String(html || "").replace(
+      /<h2[^>]*>[\s\S]*?<\/h2>([\s\S]*?)(?=<h2[^>]*>|$)/gi,
+      (match, answer) =>
+        answer.replace(/<[^>]*>/g, "").trim() === "" ? "" : match,
+    ),
+  );
+
+  eleventyConfig.addFilter("cdata", (value) =>
+    `<![CDATA[${String(value || "").replace(/]]>/g, "]]]]><![CDATA[>")}]]>`,
+  );
+
+  eleventyConfig.addFilter("rfc822", (date) => {
+    const value = new Date(date);
+    return Number.isNaN(value.getTime()) ? "" : value.toUTCString();
   });
 
   eleventyConfig.addFilter("xmlEscape", (value) =>

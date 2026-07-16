@@ -1,0 +1,36 @@
+---
+permalink: /rss.xml
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Forklore</title>
+    <link>{{ site.url }}/</link>
+    <atom:link href="{{ site.url }}/rss.xml" rel="self" type="application/rss+xml" />
+    <description>{{ site.description | xmlEscape | safe }}</description>
+    <language>en</language>
+    <copyright>All rights reserved, Forklore</copyright>
+    {%- for maintainer in collections.maintainers %}
+    {%- set data = maintainer.data %}
+    {%- set uid = site.url + "/maintainers/" + (data.username | lower) %}
+    {%- set url = uid + "/" %}
+    {%- set summary %}
+      <p><strong>{{ data.full_name or data.username }}</strong> (@{{ data.username }})</p>
+      {%- if data.designation %}<p><em>{{ data.designation | markdownInline | safe }}</em></p>{% endif %}
+      <p><strong>Social Links:</strong></p>
+      <ul>{% for s in data.socials %}<li><a href="{{ s.link }}">{{ s.label | socialLabel }}</a></li>{% else %}<li>No socials listed</li>{% endfor %}</ul>
+      <p><strong>Projects:</strong></p>
+      <ul>{% for p in data.projects %}<li><strong>{{ p.name }}</strong>{% if p.project_link or p.website_link %} ({% if p.project_link %}<a href="{{ p.project_link }}">Repo</a>{% endif %}{% if p.project_link and p.website_link %} | {% endif %}{% if p.website_link %}<a href="{{ p.website_link }}">Website</a>{% endif %}){% endif %}<br>{{ p.short_description or p.description or "No description" }}</li>{% else %}<li>No projects listed</li>{% endfor %}</ul>
+    {%- endset %}
+    <item>
+      <title>{{ (data.full_name or data.username) | xmlEscape | safe }}</title>
+      <link>{{ url | xmlEscape | safe }}</link>
+      <guid isPermaLink="false">{{ uid | xmlEscape | safe }}</guid>
+      <pubDate>{{ data.created_on | rfc822 | safe }}</pubDate>
+      <description>{{ summary | cdata | safe }}</description>
+      <content:encoded>{{ (summary + ("<p><strong>Form Responses:</strong></p>" + (maintainer.templateContent | qaList))) | cdata | safe }}</content:encoded>
+    </item>
+    {%- endfor %}
+  </channel>
+</rss>

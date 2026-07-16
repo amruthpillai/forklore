@@ -37,7 +37,7 @@ layout: base.njk
     </div>
 
     <div class="story-content">
-      {{ content | safe }}
+      {{ content | dropEmptyQA | safe }}
     </div>
   </aside>
 </article>

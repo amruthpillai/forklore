@@ -1,5 +1,5 @@
 .hero {
-  padding: 5rem 2rem 2rem;
+  padding: clamp(2rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem) clamp(1.5rem, 4vw, 2rem);
   border-bottom: 2px dashed var(--line);
   background: transparent;
 }
@@ -41,7 +41,7 @@
 .intro {
   display: grid;
   gap: 1rem;
-  padding: 3rem 2rem;
+  padding: clamp(1.75rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem);
   border-bottom: 2px dashed var(--line);
 }
 
@@ -62,7 +62,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.25rem;
-  padding: 2.5rem 2rem 0;
+  padding: clamp(1.5rem, 5vw, 2.5rem) clamp(1rem, 4vw, 2rem) 0;
 }
 
 .search-sort,
@@ -144,8 +144,9 @@
 
 .maintainer-list {
   display: grid;
-  gap: 2rem;
-  padding: 2.5rem 2rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2rem);
+  padding: clamp(1.5rem, 5vw, 2.5rem) clamp(1rem, 4vw, 2rem);
 }
 
 .maintainer-card {
@@ -201,10 +202,27 @@
   margin: 0.35rem 0 0;
 }
 
+/* Let flex text columns shrink so long names/URLs wrap instead of
+   widening the card past the page (which pushes the right border off-screen). */
+.maintainer-card-header > div,
+.profile-card > div,
+.project-summary > div {
+  min-width: 0;
+}
+
+.maintainer-card h2,
+.maintainer-card p,
+.profile-card h1,
+.profile-card p,
+.project-summary h3,
+.project-summary p {
+  overflow-wrap: anywhere;
+}
+
 .project-strip {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   overflow: hidden;
 }
 
@@ -234,6 +252,18 @@
   object-fit: contain;
   padding: 0.75rem;
   background: var(--primary-light);
+}
+
+.project-summary-logo-fallback {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 5rem;
+  height: 5rem;
+  padding: 0.4rem;
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+  color: var(--text);
+  container-type: inline-size;
 }
 
 .project-summary h3,

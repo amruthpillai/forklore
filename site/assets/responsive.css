@@ -1,10 +1,13 @@
 @media (max-width: 760px) {
+  /* Keep the themed dashed borders visible, inset from the screen edge */
   .page-shell {
-    border: 0;
+    width: auto;
+    margin-inline: 0.75rem;
   }
 
-  /* ── Hamburger nav ── */
+  /* ── Hamburger nav: compact popup anchored top-right near the icon ── */
   .site-header {
+    position: relative;
     flex-wrap: wrap;
     padding: 1.25rem;
   }
@@ -18,48 +21,66 @@
   }
 
   .site-nav {
-    position: fixed;
-    top: 0;
-    right: 0;
+    position: absolute;
+    inset-block-start: calc(100% - 0.75rem);
+    inset-inline-end: 1.25rem;
     z-index: 1000;
-    width: min(280px, 75vw);
-    height: 100vh;
+    width: max-content;
+    max-width: min(16rem, calc(100vw - 2.5rem));
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 0;
-    padding: 2rem;
+    align-items: stretch;
+    gap: 0.25rem;
+    padding: 0.5rem;
     background: var(--bg);
-    border-left: 2px dashed var(--line);
-    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
-    transform: translateX(100%);
-    transition: transform 0.25s ease;
-    overflow-y: auto;
+    border: 2px dashed var(--line);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--primary-dark) 35%, transparent);
+    transform-origin: top right;
+    opacity: 0;
+    visibility: hidden;
+    scale: 0.96;
+    translate: 0 -0.35rem;
+    transition: opacity 0.18s ease, scale 0.18s ease, translate 0.18s ease,
+      visibility 0s linear 0.18s;
   }
 
   .site-nav.open {
-    display: flex;
-    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+    scale: 1;
+    translate: 0 0;
+    transition-delay: 0s;
   }
 
   .site-nav a {
     display: block;
     width: 100%;
-    padding: 1rem 0;
-    border-bottom: 1px dashed var(--line);
-    font-size: 0.95rem;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
   }
 
+  .site-nav a:not(:last-child) {
+    border-bottom: 1px dashed var(--line);
+  }
+
+  /* Transparent catch-all so an outside tap closes the popup */
   .nav-overlay {
     display: none;
     position: fixed;
     inset: 0;
     z-index: 999;
-    background: rgba(0, 0, 0, 0.4);
   }
 
   .nav-overlay.open {
     display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-nav {
+      transition: opacity 0.18s ease, visibility 0s linear 0.18s;
+      scale: 1;
+      translate: 0 0;
+    }
   }
 
   /* ── Maintainer detail: profile first, then projects, then questions ── */
@@ -108,27 +129,33 @@
   .directory-controls {
     flex-wrap: wrap;
     gap: 0.75rem;
-    overflow-x: visible;
-    padding-right: 0;
   }
 
+  /* Row 1: search (70%) beside the sort dropdown (30%) */
   .search-sort {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
     width: 100%;
     margin-top: 0;
   }
 
   .search-box {
-    width: 100%;
+    flex: 8 1 0;
+    width: auto;
+    min-width: 0;
     max-width: none;
   }
 
   .search-sort select {
+    flex: 2 1 0;
     width: auto;
+    min-width: 0;
   }
 
+  /* Row 2: action buttons sized to content, left-aligned */
   .control-actions {
-    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5rem;
     margin-top: 0;
     width: 100%;
   }
@@ -136,7 +163,6 @@
   .control-actions .button {
     flex: 0 0 auto;
     justify-content: center;
-    width: auto;
     white-space: nowrap;
   }
 

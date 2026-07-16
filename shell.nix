@@ -6,6 +6,7 @@ pkgs.mkShell {
 	prettier eslint esbuild pre-commit
 	uv yarn html-tidy djlint
 	python3 gcc gnumake
+	librsvg
   ];
 
  }

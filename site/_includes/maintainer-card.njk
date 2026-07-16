@@ -27,6 +27,10 @@
       <div class="project-summary">
         {% if project.logo %}
           <img src="{{ project.logo }}" alt="Logo of {{ project.name }}" loading="lazy">
+        {% else %}
+          <div class="project-summary-logo-fallback" role="img" aria-label="Logo of {{ project.name }}">
+            <span>{{ project | shortLabel }}</span>
+          </div>
         {% endif %}
         <div>
           <h3>{{ project.name }}</h3>

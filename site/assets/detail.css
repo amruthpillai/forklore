@@ -28,8 +28,21 @@
 .project-logo-fallback {
   display: grid;
   place-items: center;
-  font-size: 2rem;
+  padding: 0.5rem;
+  background: var(--panel);
+  color: var(--text);
+  container-type: inline-size;
+}
+
+.project-logo-fallback span,
+.project-summary-logo-fallback span {
   font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  font-size: clamp(0.55rem, 17cqi, 0.95rem);
 }
 
 .project-copy p,
@@ -97,6 +110,7 @@
 .story-content {
   padding-top: 0;
   border-top: 2px dashed var(--line);
+  overflow-wrap: anywhere;
 }
 
 .story-content img {
@@ -200,6 +214,11 @@
 .planet-controls,
 .planet-detail {
   display: grid;
+  /* minmax(0, 1fr) lets the single column shrink below its content's
+     min-size, so wide children (code blocks, embeds, long tokens) stay
+     inside the page width and wrap or scroll internally instead of
+     stretching the whole layout past the header. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.5rem;
   padding: 2rem;
 }
@@ -211,6 +230,7 @@
 
 .planet-posts {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0;
   padding: 0;
 }
@@ -227,6 +247,18 @@
 .planet-detail .planet-hero h1 {
   font-size: clamp(1.25rem, 4vw, 1.875rem);
   line-height: 1.2;
+}
+
+.planet-hero h1,
+.planet-post-title a,
+.planet-author-inline {
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.planet-post-meta,
+.planet-post-body {
+  min-inline-size: 0;
 }
 
 .planet-controls {
@@ -284,6 +316,7 @@
 
 .planet-post {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   border-bottom: 1px dashed var(--line);
 }
 
@@ -307,6 +340,7 @@
 
 .planet-post-body {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   padding: 1.5rem;
 }
@@ -460,6 +494,18 @@
   max-width: 100%;
   height: auto;
   margin: 1rem 0;
+}
+
+.planet-content :where(iframe, video, embed, object, svg) {
+  max-width: 100%;
+}
+
+.planet-content iframe {
+  width: 100%;
+}
+
+.planet-content pre {
+  max-width: 100%;
 }
 
 .planet-pagination {
