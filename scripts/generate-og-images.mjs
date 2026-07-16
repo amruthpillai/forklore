@@ -11,6 +11,9 @@ const maintainersDir = path.join(root, "content", "maintainers");
 const outputDir = path.join(root, "public", "og");
 const maintainerOutputDir = path.join(outputDir, "maintainers");
 
+// Native OG size (1200x630)
+const OUTPUT_WIDTH = 1200;
+
 const fontMonoB64 = (await readFile(
   path.join(root, "site", "assets", "fonts", "geist-mono-latin.woff2"),
 )).toString("base64");
@@ -54,6 +57,23 @@ function stripMarkdown(text) {
   return String(text || "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
 }
 
+// Mirror the site's shortLabel filter: last path segment of the repo URL,
+// else the project name.
+function shortLabel(project) {
+  if (project?.project_link) {
+    try {
+      const parts = new URL(project.project_link).pathname
+        .replace(/\/$/, "")
+        .split("/")
+        .filter(Boolean);
+      if (parts.length) return parts[parts.length - 1];
+    } catch {
+      // fall through to name
+    }
+  }
+  return project?.name || "";
+}
+
 async function loadImageBase64(filePath) {
   try {
     const abs = path.join(root, "public", filePath.replace(/^\//, ""));
@@ -70,27 +90,9 @@ async function loadImageBase64(filePath) {
   }
 }
 
-function renderOg({ title, eyebrow = "Forklore", description = "Maintainer stories from FOSS United", photoDataUri = null, logoDataUri = null }) {
-  const maxTitleLen = photoDataUri ? 25 : 40;
-  const safeTitle = escapeXml(truncate(title, maxTitleLen));
-  const safeEyebrow = escapeXml(truncate(eyebrow, 60));
-  const safeDescription = escapeXml(truncate(description, 70));
-  const titleFontSize = safeTitle.length > 18 ? 44 : 58;
-
-  const photoSvg = photoDataUri ? `
-    <clipPath id="photoClip"><rect x="900" y="100" width="160" height="160"/></clipPath>
-    <image href="${photoDataUri}" x="900" y="100" width="160" height="160" clip-path="url(#photoClip)" preserveAspectRatio="xMidYMid slice"/>
-    <rect x="900" y="100" width="160" height="160" fill="none" stroke="#CFF2DA" stroke-width="3"/>` : "";
-
-  const logoSvg = logoDataUri ? `
-    <clipPath id="logoClip"><rect x="900" y="400" width="80" height="80"/></clipPath>
-    <image href="${logoDataUri}" x="900" y="400" width="80" height="80" clip-path="url(#logoClip)" preserveAspectRatio="xMidYMid slice"/>
-    <rect x="900" y="400" width="80" height="80" fill="none" stroke="#CFF2DA" stroke-width="2" stroke-opacity="0.5"/>` : "";
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
-  ${fontDefs}
-  <clipPath id="clip"><rect width="1200" height="630"/></clipPath>
-  <g clip-path="url(#clip)">
+// Shared background: dashed frame, corner crosshairs, header band, branding.
+function chrome() {
+  return `
     <rect width="1200" height="630" fill="#18222A"/>
 
     <!-- Dashed border frame -->
@@ -112,39 +114,121 @@ function renderOg({ title, eyebrow = "Forklore", description = "Maintainer stori
     <!-- Header band -->
     <rect x="100" y="80" width="1000" height="260" fill="#CFF2DA" fill-opacity="0.2"/>
 
-    <!-- Name -->
-    <text x="150" y="230" fill="#CFF2DA" font-family="Geist Mono, monospace" font-size="${titleFontSize}" font-weight="700">${safeTitle}</text>
-
-    <!-- Designation / description -->
-    <text x="150" y="295" fill="#CFF2DA" font-family="Inter, sans-serif" font-size="24">${safeDescription}</text>
-
-    <!-- Eyebrow (username) -->
-    <text x="150" y="130" fill="#CFF2DA" font-family="Geist Mono, monospace" font-size="24" opacity="0.7">${safeEyebrow}</text>
-
     <!-- Bottom branding -->
-    <text x="150" y="460" fill="#CFF2DA" font-family="Geist Mono, monospace" font-size="48" font-weight="700">Forklore</text>
-    <rect x="430" y="443" width="30" height="9" fill="#CFF2DA"/>
+    <text x="150" y="465" fill="#CFF2DA" font-family="Geist Mono, monospace" font-size="52" font-weight="700">forklore_</text>
+    <text x="150" y="508" fill="#CFF2DA" font-family="Geist Mono, monospace" font-size="24">By FOSS United</text>`;
+}
 
-    <!-- Subtitle -->
-    <text x="150" y="500" fill="#CFF2DA" font-family="Geist Mono, monospace" font-size="16">By FOSS United</text>
-
-    ${photoSvg}
-    ${logoSvg}
+function svgWrap(inner) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
+  ${fontDefs}
+  <clipPath id="clip"><rect width="1200" height="630"/></clipPath>
+  <g clip-path="url(#clip)">
+    ${chrome()}
+    ${inner}
   </g>
 </svg>`;
 }
 
+// Site-wide OG (homepage): left-aligned title + description in the band.
+function renderIndexOg({ title, eyebrow, description }) {
+  const safeTitle = escapeXml(truncate(title, 40));
+  const safeEyebrow = escapeXml(truncate(eyebrow, 60));
+  const safeDescription = escapeXml(truncate(description, 70));
+  return svgWrap(`
+    <text x="150" y="130" fill="#CFF2DA" font-family="Geist Mono, monospace" font-size="24" opacity="0.7">${safeEyebrow}</text>
+    <text x="150" y="230" fill="#CFF2DA" font-family="Geist Mono, monospace" font-size="58" font-weight="700">${safeTitle}</text>
+    <text x="150" y="295" fill="#CFF2DA" font-family="Inter, sans-serif" font-size="24">${safeDescription}</text>`);
+}
+
+// Maintainer OG: photo top-right, name + designation right-aligned beside it,
+// project logo boxes along the bottom-right (contained, never cropped).
+function renderMaintainerOg({ name, username, designation, photoDataUri, projects }) {
+  const safeUser = escapeXml(truncate(username, 30));
+  const safeDesignation = escapeXml(truncate(designation, 46));
+
+  // Photo box: top-right inside the header band.
+  const photoX = 890;
+  const photoY = 115;
+  const photoSize = 180;
+  const photoSvg = photoDataUri
+    ? `
+    <clipPath id="photoClip"><rect x="${photoX}" y="${photoY}" width="${photoSize}" height="${photoSize}"/></clipPath>
+    <rect x="${photoX}" y="${photoY}" width="${photoSize}" height="${photoSize}" fill="#eef0f1"/>
+    <image href="${photoDataUri}" x="${photoX}" y="${photoY}" width="${photoSize}" height="${photoSize}" clip-path="url(#photoClip)" preserveAspectRatio="xMidYMid slice"/>
+    <rect x="${photoX}" y="${photoY}" width="${photoSize}" height="${photoSize}" fill="none" stroke="#CFF2DA" stroke-width="3"/>`
+    : "";
+
+  // Name, right-aligned single line, ending just left of the photo. Fills the
+  // full band width, then truncates with an ellipsis (Geist Mono ~0.6em/glyph).
+  const textEndX = photoX - 30;
+  const leftBound = 150;
+  const nameSize = 52;
+  const maxNameChars = Math.max(1, Math.floor((textEndX - leftBound) / (nameSize * 0.6)));
+  const safeName = escapeXml(truncate(name, maxNameChars));
+  const headerText = `
+    <text x="${textEndX}" y="150" text-anchor="end" fill="#CFF2DA" font-family="Geist Mono, monospace" font-size="22" opacity="0.7">@${safeUser}</text>
+    <text x="${textEndX}" y="215" text-anchor="end" fill="#CFF2DA" font-family="Geist Mono, monospace" font-size="${nameSize}" font-weight="700">${safeName}</text>
+    <text x="${textEndX}" y="262" text-anchor="end" fill="#CFF2DA" font-family="Inter, sans-serif" font-size="26">${safeDesignation}</text>`;
+
+  // Project logo boxes along the bottom of the right half (left half holds the
+  // branding). Contained fit so logos are never cropped; max 4.
+  const box = 90;
+  const gap = 20;
+  const pad = 12;
+  const rowY = 400;
+  const rightHalfCenterX = 850;
+
+  const boxMarkup = (x, p) => {
+    let inner;
+    if (p.logoDataUri) {
+      inner = `<image href="${p.logoDataUri}" x="${x + pad}" y="${rowY + pad}" width="${box - 2 * pad}" height="${box - 2 * pad}" preserveAspectRatio="xMidYMid meet"/>`;
+    } else {
+      // No logo: show the project's first word, fitted to the box.
+      const word = String(p.name || p.label || "").trim().split(/\s+/)[0] || "";
+      const wordSize = Math.max(
+        9,
+        Math.min(22, Math.floor((box - 2 * pad) / Math.max(1, word.length * 0.62))),
+      );
+      inner = `<text x="${x + box / 2}" y="${rowY + box / 2}" text-anchor="middle" dominant-baseline="central" fill="#18222A" font-family="Geist Mono, monospace" font-size="${wordSize}" font-weight="700">${escapeXml(word)}</text>`;
+    }
+    return `<rect x="${x}" y="${rowY}" width="${box}" height="${box}" fill="#eef0f1"/>${inner}<rect x="${x}" y="${rowY}" width="${box}" height="${box}" fill="none" stroke="#CFF2DA" stroke-width="2"/>`;
+  };
+
+  const shown = (projects || []).slice(0, 4);
+  const n = shown.length;
+  let projectsSvg = "";
+  if (n === 1) {
+    // Single project: show the name beside the lone box, the pair centered in
+    // the right half.
+    const p = shown[0];
+    const label = truncate(p.name, 16);
+    const labelSize = 28;
+    const labelWidth = Math.ceil(label.length * labelSize * 0.6);
+    const total = labelWidth + gap + box;
+    const startX = rightHalfCenterX - total / 2;
+    projectsSvg =
+      `<text x="${startX}" y="${rowY + box / 2}" text-anchor="start" dominant-baseline="central" fill="#CFF2DA" font-family="Geist Mono, monospace" font-size="${labelSize}" font-weight="600">${escapeXml(label)}</text>` +
+      boxMarkup(startX + labelWidth + gap, p);
+  } else if (n > 1) {
+    const startX = rightHalfCenterX - (n * box + (n - 1) * gap) / 2;
+    projectsSvg = shown.map((p, i) => boxMarkup(startX + i * (box + gap), p)).join("");
+  }
+
+  return svgWrap(`${photoSvg}${headerText}${projectsSvg}`);
+}
+
 function svgToPng(svgString) {
   return execFileSync("rsvg-convert", [
-    "--width", "1200",
+    "--width", String(OUTPUT_WIDTH),
     "--format", "png",
-  ], { input: svgString, maxBuffer: 10 * 1024 * 1024 });
+  ], { input: svgString, maxBuffer: 20 * 1024 * 1024 });
 }
 
 await rm(outputDir, { force: true, recursive: true });
 await mkdir(maintainerOutputDir, { recursive: true });
 
-const indexSvg = renderOg({
+const indexSvg = renderIndexOg({
   title: "Forklore",
   eyebrow: "forklore.in",
   description: "Confessions, quirks, and occasional rants from India's open source keepers.",
@@ -160,15 +244,21 @@ for (const file of files) {
   if (!data.username) continue;
 
   const photoDataUri = data.photo ? await loadImageBase64(data.photo) : null;
-  const firstLogo = data.projects?.[0]?.logo;
-  const logoDataUri = firstLogo ? await loadImageBase64(firstLogo) : null;
+  const projects = [];
+  for (const project of (data.projects || []).slice(0, 4)) {
+    projects.push({
+      name: project.name,
+      label: shortLabel(project),
+      logoDataUri: project.logo ? await loadImageBase64(project.logo) : null,
+    });
+  }
 
-  const svg = renderOg({
-    title: data.full_name || data.username,
-    eyebrow: `@${data.username}`,
-    description: stripMarkdown(data.designation) || "Forklore maintainer profile",
+  const svg = renderMaintainerOg({
+    name: data.full_name || data.username,
+    username: data.username,
+    designation: stripMarkdown(data.designation) || "Forklore maintainer profile",
     photoDataUri,
-    logoDataUri,
+    projects,
   });
   await writeFile(path.join(maintainerOutputDir, `${data.username}.png`), svgToPng(svg));
 }
