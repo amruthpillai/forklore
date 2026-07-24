@@ -113,9 +113,18 @@
     if (href) window.location.href = href;
   });
 
-  document.querySelector("[data-scroll-top]")?.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
+  const scrollTopBtn = document.querySelector("[data-scroll-top]");
+  if (scrollTopBtn) {
+    const toggleScrollTop = () => {
+      const scrolled = window.scrollY || document.documentElement.scrollTop || 0;
+      scrollTopBtn.classList.toggle("is-visible", scrolled > 400);
+    };
+    toggleScrollTop();
+    window.addEventListener("scroll", toggleScrollTop, { passive: true });
+    scrollTopBtn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
 
   const planetSearch = document.querySelector("[data-planet-search]");
   const planetEmpty = document.querySelector("[data-planet-empty]");

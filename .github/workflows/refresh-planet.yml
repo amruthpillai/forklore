@@ -3,7 +3,8 @@ name: Refresh Planet
 on:
   workflow_dispatch:
   schedule:
-    - cron: "30 3 * * 1"
+    # 03:00 IST Monday == 21:30 UTC Sunday (GitHub cron is UTC)
+    - cron: "30 21 * * 0"
 
 permissions:
   contents: write
@@ -21,6 +22,8 @@ jobs:
           cache-dependency-path: site/yarn.lock
 
       - run: corepack enable
+      # OG image generation (via yarn build) shells out to rsvg-convert
+      - run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
       - run: yarn --cwd site install --frozen-lockfile
       - run: yarn planet:refresh
       - run: yarn build

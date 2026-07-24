@@ -201,6 +201,27 @@
   color: var(--text);
   font: inherit;
   cursor: pointer;
+  /* Hidden until the page is scrolled down (toggled by main.js) */
+  opacity: 0;
+  visibility: hidden;
+  translate: 0 0.5rem;
+  transition: opacity 0.2s ease, translate 0.2s ease, visibility 0s linear 0.2s;
+  pointer-events: none;
+}
+
+.scroll-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-top {
+    translate: 0 0;
+    transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+  }
 }
 
 .scroll-top:hover,
