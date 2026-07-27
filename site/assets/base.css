@@ -75,8 +75,17 @@ a {
 }
 
 .brand {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
   text-decoration: none;
   font-weight: 700;
+}
+
+.brand-planet {
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  font-weight: 800;
 }
 
 .brand-mark {

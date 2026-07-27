@@ -1,12 +1,12 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import yaml from "js-yaml";
+import { load } from 'js-yaml'
 
 const root = process.cwd();
 
 function frontmatter(source) {
   const match = source.match(/^---\n([\s\S]*?)\n---\n?/);
-  return match ? yaml.load(match[1]) || {} : {};
+  return match ? load(match[1]) || {} : {};
 }
 
 function readMaintainers() {

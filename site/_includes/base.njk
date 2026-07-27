@@ -39,7 +39,9 @@
   <body>
     <div class="page-shell">
       <header class="site-header">
-        <a class="brand" href="/" aria-label="Forklore home">
+        {% set isPlanet = page.url and "/planet" in page.url %}
+        <a class="brand" href="{{ "/planet/" if isPlanet else "/" }}" aria-label="{{ "Planet Forklore" if isPlanet else "Forklore home" }}">
+          {% if isPlanet %}<span class="brand-planet">Planet</span>{% endif %}
           <img src="/logo/logo_light.svg" alt="Forklore" class="brand-mark" data-theme-logo>
         </a>
         <div class="header-right">
