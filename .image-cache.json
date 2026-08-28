@@ -674,5 +674,13 @@
   "https://priyanshujain.github.io/sanderling/_assets/sanderling.jpeg": {
     "hash": "ab6214a8c529f9f5b72f55d6732a76e730695cfcb3de184a3d52105c4c8fe49b",
     "filename": "priyanshujain_sanderling.jpeg"
+  },
+  "https://i.imgur.com/2dmLSCT.jpeg": {
+    "hash": "d7875789d9bc66e24f9b08454233d0a0476024f5da11c5a46713a4b4eb8cefe4",
+    "filename": "amruthpillai_photo.jpeg"
+  },
+  "https://rxresu.me/logo/light.svg": {
+    "hash": "b48bc0f9ae2f148d82c9129a7a4e8f9edcd27c2f65a6ff0d4f32d65df2d0e402",
+    "filename": "amruthpillai_reactive_resume.svg"
   }
 }
